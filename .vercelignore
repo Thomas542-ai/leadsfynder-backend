@@ -1,0 +1,15 @@
+node_modules
+src
+*.md
+.git
+.gitignore
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+coverage
+.nyc_output
+*.log
+.DS_Store
+Thumbs.db
