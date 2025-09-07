@@ -42,6 +42,12 @@ async function createApp() {
 }
 
 module.exports = async (req, res) => {
-  const nestApp = await createApp();
-  return nestApp.getHttpAdapter().getInstance()(req, res);
+  try {
+    const nestApp = await createApp();
+    const handler = nestApp.getHttpAdapter().getInstance();
+    return handler(req, res);
+  } catch (error) {
+    console.error('Error in serverless handler:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
 };
