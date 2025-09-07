@@ -33,8 +33,8 @@ async function createApp() {
       transform: true,
     }));
 
-    // Global prefix
-    app.setGlobalPrefix('api');
+    // Global prefix - removed for Vercel serverless functions
+    // app.setGlobalPrefix('api');
 
     await app.init();
   }
