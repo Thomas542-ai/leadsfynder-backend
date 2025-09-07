@@ -3,8 +3,8 @@ const { ValidationPipe } = require('@nestjs/common');
 const { ConfigService } = require('@nestjs/config');
 const helmet = require('helmet');
 const compression = require('compression');
-const { AppModule } = require('../dist/app.module');
-const { Logger } = require('../dist/utils/logger');
+const { AppModule } = require('./dist/app.module');
+const { Logger } = require('./dist/utils/logger');
 
 let app;
 
