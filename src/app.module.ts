@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 
+import { AppController } from './app.controller';
 import { AuthModule } from './modules/auth/auth.module';
 import { LeadsModule } from './modules/leads/leads.module';
 import { CampaignsModule } from './modules/campaigns/campaigns.module';
@@ -31,5 +32,6 @@ import { SupabaseModule } from './modules/supabase/supabase.module';
     AnalyticsModule,
     HealthModule,
   ],
+  controllers: [AppController],
 })
 export class AppModule {}
