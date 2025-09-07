@@ -5,9 +5,10 @@ export class AppController {
   @Get()
   getRoot() {
     return {
-      message: 'LeadsFynder Backend API',
+      message: 'LeadsFynder Backend API - Fixed!',
       version: '1.0.0',
       status: 'running',
+      timestamp: new Date().toISOString(),
       endpoints: {
         health: '/api/health',
         auth: '/api/auth',
