@@ -1,0 +1,2 @@
+# This file ensures the public directory exists for Vercel
+# The actual API is handled by serverless functions in the api/ directory
