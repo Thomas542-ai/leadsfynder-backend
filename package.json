@@ -10,7 +10,8 @@
     "vercel-build": "npm run build",
     "test": "jest",
     "lint": "eslint src/**/*.ts",
-    "lint:fix": "eslint src/**/*.ts --fix"
+    "lint:fix": "eslint src/**/*.ts --fix",
+    "postinstall": "npm run build"
   },
   "keywords": [
     "leads",
