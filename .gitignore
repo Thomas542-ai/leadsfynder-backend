@@ -11,7 +11,8 @@ yarn-error.log*
 .env.test.local
 .env.production.local
 
-# Build outputs (but keep api/dist for Vercel)
+# Build outputs
+dist/
 build/
 *.tsbuildinfo
 

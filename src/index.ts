@@ -15,12 +15,26 @@ async function bootstrap() {
   app.use(helmet());
   app.use(compression());
 
-  // CORS configuration
+  // CORS configuration for Vercel frontend
   app.enableCors({
-    origin: true, // Allow all origins during development
+    origin: [
+      'http://localhost:3000', // Local development
+      'http://localhost:5173', // Vite dev server
+      'https://*.vercel.app', // Vercel frontend domains
+      process.env.FRONTEND_URL, // Production frontend URL
+    ].filter(Boolean),
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
+    allowedHeaders: [
+      'Content-Type', 
+      'Authorization', 
+      'X-Requested-With',
+      'Accept',
+      'Origin',
+      'Access-Control-Request-Method',
+      'Access-Control-Request-Headers',
+    ],
+    exposedHeaders: ['Content-Range', 'X-Content-Range'],
   });
 
   // Global validation pipe
