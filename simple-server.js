@@ -1,15 +1,41 @@
 const express = require('express');
 const cors = require('cors');
+const { createClient } = require('@supabase/supabase-js');
 
 const app = express();
 const PORT = process.env.PORT || 10000;
 
-// Simple in-memory user storage (in real app, use database)
-const users = [
-  { id: '1', email: 'admin@leadsfynder.com', password: 'admin123', firstName: 'Admin', lastName: 'User', name: 'Admin User', role: 'admin', createdAt: new Date().toISOString() },
-  { id: '2', email: 'user@leadsfynder.com', password: 'user123', firstName: 'Test', lastName: 'User', name: 'Test User', role: 'user', createdAt: new Date().toISOString() },
-  { id: '3', email: 'demo@leadsfynder.com', password: 'demo123', firstName: 'Demo', lastName: 'User', name: 'Demo User', role: 'user', createdAt: new Date().toISOString() }
-];
+// Initialize Supabase client
+const supabaseUrl = process.env.SUPABASE_URL || 'https://your-project.supabase.co';
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY || 'your-service-role-key';
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+console.log('Supabase client initialized:', supabaseUrl);
+
+// Initialize default users in Supabase (run once)
+async function initializeDefaultUsers() {
+  try {
+    const defaultUsers = [
+      { id: '1', email: 'admin@leadsfynder.com', password: 'admin123', first_name: 'Admin', last_name: 'User', name: 'Admin User', role: 'admin' },
+      { id: '2', email: 'user@leadsfynder.com', password: 'user123', first_name: 'Test', last_name: 'User', name: 'Test User', role: 'user' },
+      { id: '3', email: 'demo@leadsfynder.com', password: 'demo123', first_name: 'Demo', last_name: 'User', name: 'Demo User', role: 'user' }
+    ];
+
+    for (const user of defaultUsers) {
+      const { error } = await supabase
+        .from('users')
+        .upsert(user, { onConflict: 'email' });
+      
+      if (error) {
+        console.log('User already exists or error:', user.email, error.message);
+      } else {
+        console.log('Default user created:', user.email);
+      }
+    }
+  } catch (error) {
+    console.log('Error initializing default users:', error.message);
+  }
+}
 
 // Middleware - Fix CORS configuration
 app.use(cors({
@@ -71,19 +97,40 @@ app.get('/api/health', (req, res) => {
 });
 
 // Debug endpoint to see all users (remove in production)
-app.get('/api/debug/users', (req, res) => {
-  console.log('Debug users endpoint accessed');
-  res.json({
-    success: true,
-    totalUsers: users.length,
-    users: users.map(user => ({
-      id: user.id,
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      createdAt: user.createdAt
-    }))
-  });
+app.get('/api/debug/users', async (req, res) => {
+  try {
+    console.log('Debug users endpoint accessed');
+    const { data: users, error } = await supabase
+      .from('users')
+      .select('id, email, name, role, created_at')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        message: 'Error fetching users',
+        error: error.message
+      });
+    }
+    
+    res.json({
+      success: true,
+      totalUsers: users.length,
+      users: users.map(user => ({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        createdAt: user.created_at
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching users',
+      error: error.message
+    });
+  }
 });
 
 // Login endpoint with proper validation
@@ -130,10 +177,15 @@ app.post('/api/auth/login', (req, res) => {
       });
     }
     
-    // Find user in our user storage
-    const user = users.find(u => u.email === email && u.password === password);
+    // Find user in Supabase database
+    const { data: user, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('email', email)
+      .eq('password', password)
+      .single();
     
-    if (!user) {
+    if (error || !user) {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password',
@@ -146,7 +198,7 @@ app.post('/api/auth/login', (req, res) => {
     // Generate a simple token (in real app, use JWT)
     const token = `jwt_${user.id}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
-    res.json({
+    res.json({  
       success: true,
       message: 'Login successful!',
       timestamp: new Date().toISOString(),
@@ -228,8 +280,12 @@ app.post('/api/auth/register', (req, res) => {
       });
     }
     
-    // Check if user already exists
-    const existingUser = users.find(u => u.email === email);
+    // Check if user already exists in Supabase
+    const { data: existingUser, error: checkError } = await supabase
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
     
     if (existingUser) {
       return res.status(409).json({
@@ -250,18 +306,30 @@ app.post('/api/auth/register', (req, res) => {
       id: newUserId,
       email: email,
       password: password, // In real app, hash this password
-      firstName: firstName,
-      lastName: lastName,
+      first_name: firstName,
+      last_name: lastName,
       name: `${firstName} ${lastName}`,
       role: 'user',
-      createdAt: new Date().toISOString()
+      created_at: new Date().toISOString()
     };
     
-    // Add user to our storage
-    users.push(newUser);
+    // Insert user into Supabase database
+    const { data: insertedUser, error: insertError } = await supabase
+      .from('users')
+      .insert([newUser])
+      .select()
+      .single();
+    
+    if (insertError) {
+      console.error('Error inserting user:', insertError);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to create user account',
+        error: insertError.message
+      });
+    }
     
     console.log(`New user registered: ${email} (ID: ${newUserId})`);
-    console.log(`Total users: ${users.length}`);
     
     res.status(201).json({
       success: true,
@@ -269,13 +337,13 @@ app.post('/api/auth/register', (req, res) => {
       timestamp: new Date().toISOString(),
       data: {
         user: {
-          id: newUser.id,
-          email: newUser.email,
-          firstName: newUser.firstName,
-          lastName: newUser.lastName,
-          name: newUser.name,
-          role: newUser.role,
-          createdAt: newUser.createdAt
+          id: insertedUser.id,
+          email: insertedUser.email,
+          firstName: insertedUser.first_name,
+          lastName: insertedUser.last_name,
+          name: insertedUser.name,
+          role: insertedUser.role,
+          createdAt: insertedUser.created_at
         },
         token: token,
         expiresIn: '24h'
@@ -361,10 +429,13 @@ app.use((req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Simple server is running on port ${PORT}`);
   console.log(`📡 API available at: http://localhost:${PORT}/api`);
   console.log(`🌐 CORS enabled for all origins`);
+  
+  // Initialize default users in Supabase
+  await initializeDefaultUsers();
 });
 
 module.exports = app;
