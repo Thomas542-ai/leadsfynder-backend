@@ -5,7 +5,7 @@ export class AppController {
   @Get()
   getRoot() {
     return {
-      message: 'LeadsFynder Backend API - Fixed!',
+      message: 'LeadsFynder Backend API - Deployed!',
       version: '1.0.0',
       status: 'running',
       timestamp: new Date().toISOString(),
