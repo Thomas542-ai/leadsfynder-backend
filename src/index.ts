@@ -53,7 +53,7 @@ async function bootstrap() {
   app.use('/', (req, res) => {
     if (req.path === '/') {
       res.json({
-        message: 'LeadsFynder Backend API - Root Route Fixed!',
+        message: 'LeadsFynder Backend API - Root Route Working!',
         version: '1.0.0',
         status: 'running',
         timestamp: new Date().toISOString(),
