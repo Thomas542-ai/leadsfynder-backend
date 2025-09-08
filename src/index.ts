@@ -44,8 +44,10 @@ async function bootstrap() {
     transform: true,
   }));
 
-  // Global prefix
-  app.setGlobalPrefix('api');
+  // Global prefix for API routes
+  app.setGlobalPrefix('api', {
+    exclude: ['/'], // Exclude root route from API prefix
+  });
 
   const port = configService.get('PORT', 8000);
   await app.listen(port);
