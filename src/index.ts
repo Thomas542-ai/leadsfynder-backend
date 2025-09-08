@@ -49,6 +49,33 @@ async function bootstrap() {
     exclude: ['/'], // Exclude root route from API prefix
   });
 
+  // Add a direct root route handler as fallback
+  app.use('/', (req, res) => {
+    if (req.path === '/') {
+      res.json({
+        message: 'LeadsFynder Backend API - Root Route Fixed!',
+        version: '1.0.0',
+        status: 'running',
+        timestamp: new Date().toISOString(),
+        endpoints: {
+          health: '/api/health',
+          auth: '/api/auth',
+          leads: '/api/leads',
+          campaigns: '/api/campaigns',
+          analytics: '/api/analytics',
+          docs: '/api/docs'
+        },
+        documentation: 'Visit /api/docs for API documentation'
+      });
+    } else {
+      res.status(404).json({
+        message: 'Not Found',
+        error: 'Not Found',
+        statusCode: 404
+      });
+    }
+  });
+
   const port = configService.get('PORT', 8000);
   await app.listen(port);
 
