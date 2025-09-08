@@ -63,7 +63,7 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Simple login endpoint
+// Simple login endpoint - handle both paths
 app.post('/api/auth/login', (req, res) => {
   try {
     console.log('Login request received:', req.body);
@@ -108,6 +108,24 @@ app.post('/api/auth/register', (req, res) => {
         name: req.body.firstName || 'New User'
       },
       token: 'fake-jwt-token-67890'
+    }
+  });
+});
+
+// Alternative endpoints without /api prefix (for debugging)
+app.post('/auth/login', (req, res) => {
+  console.log('Direct auth/login request received:', req.body);
+  res.json({
+    success: true,
+    message: 'Direct login endpoint working!',
+    timestamp: new Date().toISOString(),
+    data: {
+      user: {
+        id: '999',
+        email: req.body.email || 'direct@test.com',
+        name: 'Direct User'
+      },
+      token: 'direct-jwt-token-99999'
     }
   });
 });
