@@ -15,6 +15,17 @@ console.log('Supabase client initialized:', supabaseUrl);
 // Initialize default users in Supabase (run once)
 async function initializeDefaultUsers() {
   try {
+    // First, check if the users table exists
+    const { data: tables, error: tableError } = await supabase
+      .from('information_schema.tables')
+      .select('table_name')
+      .eq('table_name', 'users');
+    
+    if (tableError || !tables || tables.length === 0) {
+      console.log('Users table does not exist. Please create it first with the SQL provided in SUPABASE_SETUP.md');
+      return;
+    }
+
     const defaultUsers = [
       { id: '1', email: 'admin@leadsfynder.com', password: 'admin123', first_name: 'Admin', last_name: 'User', name: 'Admin User', role: 'admin' },
       { id: '2', email: 'user@leadsfynder.com', password: 'user123', first_name: 'Test', last_name: 'User', name: 'Test User', role: 'user' },
@@ -185,7 +196,18 @@ app.post('/api/auth/login', async (req, res) => {
       .eq('password', password)
       .single();
     
-    if (error || !user) {
+    if (error) {
+      console.error('Database error during login:', error.message);
+      return res.status(500).json({
+        success: false,
+        message: 'Database error. Please try again later.',
+        errors: {
+          general: 'Server error occurred'
+        }
+      });
+    }
+    
+    if (!user) {
       return res.status(401).json({
         success: false,
         message: 'Invalid email or password',
