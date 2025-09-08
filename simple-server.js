@@ -497,6 +497,7 @@ app.listen(PORT, async () => {
   console.log(`🚀 Simple server is running on port ${PORT}`);
   console.log(`📡 API available at: http://localhost:${PORT}/api`);
   console.log(`🌐 CORS enabled for all origins`);
+  console.log(`🔄 Deployment timestamp: ${new Date().toISOString()}`);
   
   // Initialize default users in Supabase
   await initializeDefaultUsers();
