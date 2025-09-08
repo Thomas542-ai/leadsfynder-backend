@@ -49,9 +49,9 @@ async function bootstrap() {
     exclude: ['/'], // Exclude root route from API prefix
   });
 
-  // Add a direct root route handler as fallback
-  app.use('/', (req, res) => {
-    if (req.path === '/') {
+  // Add a direct root route handler as fallback (only for exact root path)
+  app.use('/', (req, res, next) => {
+    if (req.path === '/' && req.method === 'GET') {
       res.json({
         message: 'LeadsFynder Backend API - Root Route Working!',
         version: '1.0.0',
@@ -68,11 +68,7 @@ async function bootstrap() {
         documentation: 'Visit /api/docs for API documentation'
       });
     } else {
-      res.status(404).json({
-        message: 'Not Found',
-        error: 'Not Found',
-        statusCode: 404
-      });
+      next(); // Pass to next middleware/route handler
     }
   });
 
