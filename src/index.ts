@@ -72,8 +72,9 @@ async function bootstrap() {
     }
   });
 
-  // Add a simple test endpoint for auth
-  app.post('/api/auth/login', (req, res) => {
+  // Add a simple test endpoint for auth using Express directly
+  const expressApp = app.getHttpAdapter().getInstance();
+  expressApp.post('/api/auth/login', (req, res) => {
     res.json({
       success: true,
       message: 'Login endpoint is working!',
