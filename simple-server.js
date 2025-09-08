@@ -134,7 +134,7 @@ app.get('/api/debug/users', async (req, res) => {
 });
 
 // Login endpoint with proper validation
-app.post('/api/auth/login', (req, res) => {
+app.post('/api/auth/login', async (req, res) => {
   try {
     console.log('Login request received:', req.body);
     console.log('Request headers:', req.headers);
@@ -225,7 +225,7 @@ app.post('/api/auth/login', (req, res) => {
 });
 
 // Register endpoint with proper validation
-app.post('/api/auth/register', (req, res) => {
+app.post('/api/auth/register', async (req, res) => {
   try {
     console.log('Register request received:', req.body);
     
