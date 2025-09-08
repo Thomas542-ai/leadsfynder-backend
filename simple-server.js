@@ -4,6 +4,13 @@ const cors = require('cors');
 const app = express();
 const PORT = process.env.PORT || 10000;
 
+// Simple in-memory user storage (in real app, use database)
+const users = [
+  { id: '1', email: 'admin@leadsfynder.com', password: 'admin123', firstName: 'Admin', lastName: 'User', name: 'Admin User', role: 'admin', createdAt: new Date().toISOString() },
+  { id: '2', email: 'user@leadsfynder.com', password: 'user123', firstName: 'Test', lastName: 'User', name: 'Test User', role: 'user', createdAt: new Date().toISOString() },
+  { id: '3', email: 'demo@leadsfynder.com', password: 'demo123', firstName: 'Demo', lastName: 'User', name: 'Demo User', role: 'user', createdAt: new Date().toISOString() }
+];
+
 // Middleware - Fix CORS configuration
 app.use(cors({
   origin: function (origin, callback) {
@@ -63,6 +70,22 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Debug endpoint to see all users (remove in production)
+app.get('/api/debug/users', (req, res) => {
+  console.log('Debug users endpoint accessed');
+  res.json({
+    success: true,
+    totalUsers: users.length,
+    users: users.map(user => ({
+      id: user.id,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      createdAt: user.createdAt
+    }))
+  });
+});
+
 // Login endpoint with proper validation
 app.post('/api/auth/login', (req, res) => {
   try {
@@ -107,14 +130,8 @@ app.post('/api/auth/login', (req, res) => {
       });
     }
     
-    // Simulate user authentication (in real app, check against database)
-    const validUsers = [
-      { email: 'admin@leadsfynder.com', password: 'admin123', name: 'Admin User', id: '1' },
-      { email: 'user@leadsfynder.com', password: 'user123', name: 'Test User', id: '2' },
-      { email: 'demo@leadsfynder.com', password: 'demo123', name: 'Demo User', id: '3' }
-    ];
-    
-    const user = validUsers.find(u => u.email === email && u.password === password);
+    // Find user in our user storage
+    const user = users.find(u => u.email === email && u.password === password);
     
     if (!user) {
       return res.status(401).json({
@@ -211,14 +228,10 @@ app.post('/api/auth/register', (req, res) => {
       });
     }
     
-    // Simulate checking if user already exists (in real app, check database)
-    const existingUsers = [
-      'admin@leadsfynder.com',
-      'user@leadsfynder.com',
-      'demo@leadsfynder.com'
-    ];
+    // Check if user already exists
+    const existingUser = users.find(u => u.email === email);
     
-    if (existingUsers.includes(email)) {
+    if (existingUser) {
       return res.status(409).json({
         success: false,
         message: 'User already exists',
@@ -228,9 +241,27 @@ app.post('/api/auth/register', (req, res) => {
       });
     }
     
-    // Generate new user ID (in real app, save to database)
+    // Generate new user ID
     const newUserId = `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const token = `jwt_${newUserId}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
+    // Create new user object
+    const newUser = {
+      id: newUserId,
+      email: email,
+      password: password, // In real app, hash this password
+      firstName: firstName,
+      lastName: lastName,
+      name: `${firstName} ${lastName}`,
+      role: 'user',
+      createdAt: new Date().toISOString()
+    };
+    
+    // Add user to our storage
+    users.push(newUser);
+    
+    console.log(`New user registered: ${email} (ID: ${newUserId})`);
+    console.log(`Total users: ${users.length}`);
     
     res.status(201).json({
       success: true,
@@ -238,13 +269,13 @@ app.post('/api/auth/register', (req, res) => {
       timestamp: new Date().toISOString(),
       data: {
         user: {
-          id: newUserId,
-          email: email,
-          firstName: firstName,
-          lastName: lastName,
-          name: `${firstName} ${lastName}`,
-          role: 'user',
-          createdAt: new Date().toISOString()
+          id: newUser.id,
+          email: newUser.email,
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
+          name: newUser.name,
+          role: newUser.role,
+          createdAt: newUser.createdAt
         },
         token: token,
         expiresIn: '24h'
