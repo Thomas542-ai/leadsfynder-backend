@@ -72,6 +72,15 @@ async function bootstrap() {
     }
   });
 
+  // Add a simple test endpoint for auth
+  app.post('/api/auth/login', (req, res) => {
+    res.json({
+      success: true,
+      message: 'Login endpoint is working!',
+      timestamp: new Date().toISOString()
+    });
+  });
+
   const port = configService.get('PORT', 8000);
   await app.listen(port);
 
