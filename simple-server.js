@@ -107,6 +107,51 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Analytics endpoints for dashboard
+app.get('/api/analytics/leads', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      totalLeads: 150,
+      verifiedLeads: 120,
+      emailsSent: 500,
+      emailsOpened: 350,
+      repliesReceived: 45,
+      callsScheduled: 25,
+      todayFollowUps: 8,
+      conversionRate: 12.5
+    }
+  });
+});
+
+app.get('/api/analytics/campaigns', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      totalCampaigns: 25,
+      activeCampaigns: 8,
+      completedCampaigns: 17,
+      totalEmailsSent: 5000,
+      openRate: 24.5,
+      clickRate: 8.2,
+      replyRate: 3.1
+    }
+  });
+});
+
+app.get('/api/analytics/revenue', (req, res) => {
+  res.json({
+    success: true,
+    data: {
+      totalRevenue: 125000,
+      monthlyRevenue: 15000,
+      averageDealSize: 2500,
+      conversionRate: 12.5,
+      revenueGrowth: 15.2
+    }
+  });
+});
+
 // Debug endpoint to see all users (remove in production)
 app.get('/api/debug/users', async (req, res) => {
   try {
@@ -265,18 +310,18 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     console.log('Register request received:', req.body);
     
-    const { email, password, firstName, lastName } = req.body;
+    const { email, password, first_name, last_name } = req.body;
     
     // Validate required fields
-    if (!email || !password || !firstName || !lastName) {
+    if (!email || !password || !first_name || !last_name) {
       return res.status(400).json({
         success: false,
         message: 'All fields are required',
         errors: {
           email: !email ? 'Email is required' : null,
           password: !password ? 'Password is required' : null,
-          firstName: !firstName ? 'First name is required' : null,
-          lastName: !lastName ? 'Last name is required' : null
+          first_name: !first_name ? 'First name is required' : null,
+          last_name: !last_name ? 'Last name is required' : null
         }
       });
     }
@@ -305,13 +350,13 @@ app.post('/api/auth/register', async (req, res) => {
     }
     
     // Validate name fields
-    if (firstName.length < 2 || lastName.length < 2) {
+    if (first_name.length < 2 || last_name.length < 2) {
       return res.status(400).json({
         success: false,
         message: 'First and last names must be at least 2 characters long',
         errors: {
-          firstName: firstName.length < 2 ? 'First name must be at least 2 characters' : null,
-          lastName: lastName.length < 2 ? 'Last name must be at least 2 characters' : null
+          first_name: first_name.length < 2 ? 'First name must be at least 2 characters' : null,
+          last_name: last_name.length < 2 ? 'Last name must be at least 2 characters' : null
         }
       });
     }
@@ -365,9 +410,9 @@ app.post('/api/auth/register', async (req, res) => {
       id: newUserId,
       email: email,
       password: password, // In real app, hash this password
-      first_name: firstName,
-      last_name: lastName,
-      name: `${firstName} ${lastName}`,
+      first_name: first_name,
+      last_name: last_name,
+      name: `${first_name} ${last_name}`,
       role: 'user',
       created_at: new Date().toISOString()
     };
@@ -403,8 +448,8 @@ app.post('/api/auth/register', async (req, res) => {
         user: {
           id: insertedUser.id,
           email: insertedUser.email,
-          firstName: insertedUser.first_name,
-          lastName: insertedUser.last_name,
+          first_name: insertedUser.first_name,
+          last_name: insertedUser.last_name,
           name: insertedUser.name,
           role: insertedUser.role,
           createdAt: insertedUser.created_at
@@ -468,6 +513,26 @@ app.post('/auth/login', (req, res) => {
       token: 'direct-jwt-token-99999',
       expiresIn: '24h'
     }
+  });
+});
+
+// Logout endpoint
+app.post('/api/auth/logout', (req, res) => {
+  console.log('Logout request received');
+  res.json({
+    success: true,
+    message: 'Logout successful',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Alternative logout endpoint without /api prefix
+app.post('/auth/logout', (req, res) => {
+  console.log('Direct logout request received');
+  res.json({
+    success: true,
+    message: 'Direct logout successful',
+    timestamp: new Date().toISOString()
   });
 });
 
