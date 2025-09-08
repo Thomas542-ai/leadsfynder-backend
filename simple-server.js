@@ -27,9 +27,9 @@ async function initializeDefaultUsers() {
     }
 
     const defaultUsers = [
-      { id: '1', email: 'admin@leadsfynder.com', password: 'admin123', first_name: 'Admin', last_name: 'User', name: 'Admin User', role: 'admin' },
-      { id: '2', email: 'user@leadsfynder.com', password: 'user123', first_name: 'Test', last_name: 'User', name: 'Test User', role: 'user' },
-      { id: '3', email: 'demo@leadsfynder.com', password: 'demo123', first_name: 'Demo', last_name: 'User', name: 'Demo User', role: 'user' }
+      { id: '1', email: 'admin@leadsfynder.com', password: 'admin123', first_name: 'Admin', last_name: 'User', name: 'Admin User', role: 'ADMIN' },
+      { id: '2', email: 'user@leadsfynder.com', password: 'user123', first_name: 'Test', last_name: 'User', name: 'Test User', role: 'USER' },
+      { id: '3', email: 'demo@leadsfynder.com', password: 'demo123', first_name: 'Demo', last_name: 'User', name: 'Demo User', role: 'USER' }
     ];
 
     for (const user of defaultUsers) {
@@ -213,9 +213,9 @@ app.post('/api/auth/login', async (req, res) => {
     // Fallback to in-memory storage if Supabase fails
     if (!user && dbError) {
       const fallbackUsers = [
-        { id: '1', email: 'admin@leadsfynder.com', password: 'admin123', name: 'Admin User', role: 'admin' },
-        { id: '2', email: 'user@leadsfynder.com', password: 'user123', name: 'Test User', role: 'user' },
-        { id: '3', email: 'demo@leadsfynder.com', password: 'demo123', name: 'Demo User', role: 'user' }
+        { id: '1', email: 'admin@leadsfynder.com', password: 'admin123', name: 'Admin User', role: 'ADMIN' },
+        { id: '2', email: 'user@leadsfynder.com', password: 'user123', name: 'Test User', role: 'USER' },
+        { id: '3', email: 'demo@leadsfynder.com', password: 'demo123', name: 'Demo User', role: 'USER' }
       ];
       
       user = fallbackUsers.find(u => u.email === email && u.password === password);
@@ -243,7 +243,7 @@ app.post('/api/auth/login', async (req, res) => {
           id: user.id,
           email: user.email,
           name: user.name,
-          role: 'user'
+          role: user.role || 'USER'
         },
         token: token,
         expiresIn: '24h'
