@@ -536,6 +536,136 @@ app.post('/auth/logout', (req, res) => {
   });
 });
 
+// Lead Manager endpoints
+app.get('/api/leads', (req, res) => {
+  console.log('Leads endpoint called');
+  res.json({
+    success: true,
+    data: {
+      leads: [
+        {
+          id: '1',
+          name: 'John Smith',
+          email: 'john@example.com',
+          company: 'Tech Corp',
+          status: 'new',
+          source: 'website',
+          created_at: '2025-01-08T10:00:00Z'
+        },
+        {
+          id: '2',
+          name: 'Sarah Johnson',
+          email: 'sarah@example.com',
+          company: 'Marketing Inc',
+          status: 'contacted',
+          source: 'referral',
+          created_at: '2025-01-07T15:30:00Z'
+        },
+        {
+          id: '3',
+          name: 'Mike Wilson',
+          email: 'mike@example.com',
+          company: 'Sales Co',
+          status: 'qualified',
+          source: 'social',
+          created_at: '2025-01-06T09:15:00Z'
+        }
+      ],
+      total: 3,
+      new: 1,
+      contacted: 1,
+      qualified: 1
+    }
+  });
+});
+
+// Email Campaign endpoints
+app.get('/api/campaigns/smtp', (req, res) => {
+  console.log('SMTP campaigns endpoint called');
+  res.json({
+    success: true,
+    data: {
+      smtpSettings: {
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        username: 'your-email@gmail.com',
+        password: 'your-app-password'
+      },
+      campaigns: [
+        {
+          id: '1',
+          name: 'Welcome Campaign',
+          subject: 'Welcome to LeadsFynder!',
+          status: 'active',
+          recipients: 150,
+          sent: 120,
+          opened: 85,
+          clicked: 25
+        },
+        {
+          id: '2',
+          name: 'Follow-up Campaign',
+          subject: 'Don\'t miss out!',
+          status: 'draft',
+          recipients: 200,
+          sent: 0,
+          opened: 0,
+          clicked: 0
+        }
+      ]
+    }
+  });
+});
+
+app.get('/api/campaigns/email', (req, res) => {
+  console.log('Email campaigns endpoint called');
+  res.json({
+    success: true,
+    data: {
+      campaigns: [
+        {
+          id: '1',
+          name: 'Welcome Campaign',
+          subject: 'Welcome to LeadsFynder!',
+          status: 'active',
+          recipients: 150,
+          sent: 120,
+          opened: 85,
+          clicked: 25,
+          created_at: '2025-01-08T10:00:00Z'
+        },
+        {
+          id: '2',
+          name: 'Follow-up Campaign',
+          subject: 'Don\'t miss out!',
+          status: 'draft',
+          recipients: 200,
+          sent: 0,
+          opened: 0,
+          clicked: 0,
+          created_at: '2025-01-07T15:30:00Z'
+        },
+        {
+          id: '3',
+          name: 'Newsletter Campaign',
+          subject: 'Monthly Newsletter',
+          status: 'completed',
+          recipients: 500,
+          sent: 500,
+          opened: 350,
+          clicked: 75,
+          created_at: '2025-01-05T09:15:00Z'
+        }
+      ],
+      total: 3,
+      active: 1,
+      draft: 1,
+      completed: 1
+    }
+  });
+});
+
 // Global error handler
 app.use((err, req, res, next) => {
   console.error('Global error:', err);
